@@ -72,11 +72,21 @@ buildIndex({
     const seconds = ((Date.now() - startedAt) / 1000).toFixed(1)
     console.log('')
     console.log('建索引完成')
-    console.log(`  文档      ${stats.docs} 篇`)
+    console.log(`  文档      ${stats.docCount} 篇`)
     console.log(`  分块      ${stats.chunks} 个`)
     console.log(`  新嵌入    ${stats.embedded} 块（复用 ${stats.reused} 块）`)
     console.log(`  向量体积  ${(stats.vectorBytes / 1024 / 1024).toFixed(1)} MB`)
+    const kinds = Object.entries(stats.kinds ?? {})
+    if (kinds.length) console.log(`  格式      ${kinds.map(([kind, count]) => `${kind} ${count}`).join(' / ')}`)
     console.log(`  总耗时    ${seconds}s`)
+    if (stats.skipped?.length) {
+      console.log('')
+      console.log(`跳过 ${stats.skipped.length} 个文件：`)
+      for (const item of stats.skipped.slice(0, 10)) {
+        console.log(`  - ${item.path}: ${item.reason}`)
+      }
+      if (stats.skipped.length > 10) console.log(`  … 另有 ${stats.skipped.length - 10} 个`)
+    }
   })
   .catch((error) => {
     console.error(`建索引失败：${error?.stack ?? error}`)

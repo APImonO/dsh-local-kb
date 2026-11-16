@@ -5,15 +5,14 @@
  * 需要重新嵌入；其余块直接搬旧向量，重建 2 万块索引时通常只需几秒。
  */
 
-import { readdir, readFile, stat } from 'node:fs/promises'
-import { join, relative, resolve } from 'node:path'
+import { readdir, stat } from 'node:fs/promises'
+import { extname, join, relative, resolve } from 'node:path'
 
 import { chunkMarkdown } from './chunk.js'
 import { MODEL_ID } from './config.js'
 import { embedTexts } from './embed.js'
+import { SUPPORTED, SUPPORTED_EXTENSIONS, extractText } from './extract/index.js'
 import { chunkId, indexExists, loadIndex, saveIndex, sha256 } from './store.js'
-
-const TEXT_EXTENSIONS = new Set(['.md', '.mdx', '.markdown', '.txt'])
 
 /** 递归列出可索引文件。 */
 export async function listFiles(root) {
@@ -30,7 +29,7 @@ export async function listFiles(root) {
       const full = join(dir, entry.name)
       if (entry.isDirectory()) {
         await walk(full)
-      } else if (TEXT_EXTENSIONS.has(entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase())) {
+      } else if (SUPPORTED[extname(entry.name).toLowerCase()]) {
         found.push(full)
       }
     }
@@ -82,7 +81,9 @@ export async function buildIndex(options) {
     }
   }
   const limited = limit ? files.slice(0, limit) : files
-  if (!limited.length) throw new Error('没有找到可索引的文件（支持 .md / .mdx / .txt）')
+  if (!limited.length) {
+    throw new Error(`没有找到可索引的文件（支持 ${SUPPORTED_EXTENSIONS.join(' / ')}）`)
+  }
 
   // 2. 读旧索引，准备复用向量
   const reusable = new Map()
@@ -101,20 +102,34 @@ export async function buildIndex(options) {
     }
   }
 
-  // 3. 分块
+  // 3. 解析 + 分块
   const chunks = []
   const docs = []
+  const skipped = []
+  const kinds = {}
   for (const file of limited) {
-    const raw = await readFile(file, 'utf8')
+    const docPath = relative(resolve(sources[0]), file)
+    let extracted
+    try {
+      extracted = await extractText(file, { logger })
+    } catch (error) {
+      // 单个文件解析失败不该拖垮整批；记录下来交给调用方展示
+      skipped.push({ path: docPath, reason: String(error?.message ?? error) })
+      logger.warn?.(`跳过 ${docPath}：${error?.message ?? error}`)
+      continue
+    }
+
+    const raw = extracted.markdown
+    kinds[extracted.kind] = (kinds[extracted.kind] ?? 0) + 1
     const docHash = sha256(raw).slice(0, 16)
-    const pieces = chunkMarkdown(raw, { filePath: relative(resolve(sources[0]), file), maxChars, overlap })
+    const pieces = chunkMarkdown(raw, { filePath: docPath, maxChars, overlap })
     for (const piece of pieces) {
       // 嵌入用的文本比存下来的正文多两行"身份"：产品名（常来自 URL）和小节。
       // 标题是"规格参数｜台式电脑"这种泛化文字时，这一步是唯一能救回向量的地方。
       const embedInput = [piece.identity, piece.title, piece.section, piece.text].filter(Boolean).join('\n')
       chunks.push({ id: chunkId(embedInput), ...piece, embedInput, doc: docHash })
     }
-    docs.push({ path: relative(resolve(sources[0]), file), hash: docHash, chunks: pieces.length })
+    docs.push({ path: docPath, kind: extracted.kind, hash: docHash, chunks: pieces.length })
   }
 
   // 4. 只嵌入缺失的块
@@ -149,6 +164,8 @@ export async function buildIndex(options) {
       builtInMs: Date.now() - startedAt,
       sources: sources.map((source) => resolve(source)),
       docs,
+      kinds,
+      skipped,
       embedded: pending.length,
       reused: chunks.length - pending.length
     }
@@ -156,10 +173,12 @@ export async function buildIndex(options) {
 
   return {
     ...manifest,
-    docs: docs.length,
+    docCount: docs.length,
     embedded: pending.length,
     reused: chunks.length - pending.length,
     durationMs: Date.now() - startedAt,
-    vectorBytes: chunks.length * 512 * 4
+    vectorBytes: chunks.length * 512 * 4,
+    kinds,
+    skipped
   }
 }

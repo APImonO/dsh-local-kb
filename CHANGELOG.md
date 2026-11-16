@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0] - 2026-11-17
+
+补齐文档格式解析：不再只吃 Markdown。
+
+### 新增
+
+- **PDF 解析**（pdfjs-dist）：按页抽取文本，每页生成 `## 第 N 页` 标题，引用能定位到页
+- **Word 解析**（mammoth）：`.docx` → Markdown，标题层级、列表、加粗保留
+- **HTML 解析**（turndown）：剥掉脚本/样式/导航/页脚后转 Markdown
+- **CSV / TSV**：转成 Markdown 表格，保留列结构（含引号、逗号转义）
+- `src/extract/` 提取层：每种格式一个提取器，统一输出 Markdown，分块器只认一种输入
+- 单个文件解析失败不中断整批：记录原因，建索引结束时列出
+- 索引 manifest 记录格式分布（`kinds`）与跳过列表（`skipped`），`build-index` 会打印
+
+### 说明
+
+- 解析思路沿用源项目 kb-forge（Python 侧 pypdf / python-docx / trafilatura）
+- 扫描件 PDF 只拿到空文本层 → 会如实跳过，不做 OCR
+
 ## [0.2.0] - 2026-11-17
 
 首个发布版。两种形态共用一套内核：MCP 服务 + DSH 插件。

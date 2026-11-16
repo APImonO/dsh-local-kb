@@ -1,6 +1,6 @@
 {
   "name": "dsh-local-kb",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "本地知识库：ONNX 中文向量检索，可作为 DeepSeek Harness 插件或 MCP 服务，不依赖任何外部服务",
   "type": "module",
   "license": "MIT",
@@ -51,7 +51,10 @@
     "chinese"
   ],
   "dependencies": {
-    "@huggingface/transformers": "^3.7.6"
+    "@huggingface/transformers": "^3.7.6",
+    "mammoth": "^1.13.0",
+    "pdfjs-dist": "^3.11.174",
+    "turndown": "^7.2.5"
   },
   "engines": {
     "node": ">=20"

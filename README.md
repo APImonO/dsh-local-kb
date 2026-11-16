@@ -16,6 +16,20 @@
 2. 查询嵌入是每轮对话都要做的事——起一个 Python 进程意味着每轮 0.5–2 秒启动开销，所以放进 Node 进程内跑。
 3. 2 万块 × 512 维只有 35 MB，暴力余弦 30 毫秒级；引 SQLite/faiss 只是增加编译和版本问题。
 
+## 支持哪些文档
+
+| 格式 | 处理方式 |
+|---|---|
+| `.md` `.mdx` `.markdown` `.txt` | 直接读，按标题分块 |
+| `.csv` `.tsv` | 转成 Markdown 表格（引号、逗号转义都处理），表格结构保住 |
+| `.html` `.htm` | 剥掉脚本/样式/导航/页脚，再用 turndown 转 Markdown |
+| `.pdf` | **按页**抽取（pdfjs-dist），每页加 `## 第 N 页` 标题，引用能定位到页 |
+| `.docx` | mammoth 转 Markdown，标题层级、列表、加粗都保留 |
+
+解析失败的单个文件不会中断整批：会被跳过并在建索引结束时列出原因（缺依赖、加密 PDF、损坏文件）。
+
+> 这套设计沿用源项目 kb-forge 的做法（Python 侧是 pypdf / python-docx / trafilatura），在 Node 里用 pdfjs-dist / mammoth / turndown 做等价的事。
+
 ## 快速开始
 
 ```bash
@@ -24,8 +38,8 @@ npm install
 # 1. 下载模型（默认走 hf-mirror；海外可设 KB_MIRROR=https://huggingface.co）
 npm run fetch-model
 
-# 2. 建索引（指向你的 Markdown 目录，可多个 --source）
-npm run build-index -- --source /path/to/markdown
+# 2. 建索引（指向你的资料目录，可多个 --source；md/pdf/docx/html/csv 混着放没问题）
+npm run build-index -- --source /path/to/docs
 
 # 3. 检索
 npm run query -- "某个问题" --context
@@ -111,6 +125,8 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-local-kb
 | 端到端检索 | p50 40 ms / p95 225 ms |
 | 检索质量（8 题人工标注） | top-1 6/8、top-3 8/8 |
 
+混合格式验证（Markdown + PDF + Word + HTML + CSV 各一份）：5 篇文档 → 7 块，建索引 1.3 s，五种格式的查询都能命中对应内容。
+
 ## 设计要点
 
 - **分块**：标题优先，段落兜底；超长段落按 80 字重叠硬切。
@@ -121,11 +137,12 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-local-kb
 
 ## 已知限制
 
-- 只索引 `.md / .mdx / .markdown / .txt`；PDF/Word 未做
+- **PDF 只抽文本层**：扫描件/图片型 PDF 需要 OCR，本项目没做（会抽出空文本并跳过）
 - 中文模型（bge-small-zh）跨语言弱：中文问句查英文页面只能进 top-2
 - 注入会追加一条消息，**可能让上游前缀缓存失效**，增加 token 成本；已按用户回合去重
 - 索引单进程独占写，别在 `kb_ingest` 跑的时候同时写索引
 - CPU 推理，全量建索引是分钟级
+- 没有 `.doc`（Word 97）、`.xlsx`、`.pptx` 支持；老格式建议先另存为 `.docx`
 
 ## 脚本
 
