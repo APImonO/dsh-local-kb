@@ -29,6 +29,17 @@ const cfg = resolveConfig({})
 const index = await loadIndex(cfg.indexDir)
 console.log(`索引 ${index.chunks.length} 块，模型 ${index.manifest.model}\n`)
 
+// 这套题是按"中文产品规格页"写的样例。别人拿自己的文档建索引时，
+// 答案字符串多半不在库里 —— 那就如实说明并跳过，而不是打印 0/8 让人以为检索坏了。
+const allText = index.chunks.map((chunk) => chunk.text).join('\n')
+const present = CASES.filter((testCase) => allText.includes(testCase.expect))
+if (present.length < CASES.length / 2) {
+  console.log('⚠️  示例语料不匹配：下面这些期望答案在索引里基本找不到。')
+  console.log('   这套评估是针对"中文产品规格页"写的；换成你自己的语料后，请按实际内容改 scripts/eval.mjs 里的 CASES。')
+  console.log(`   命中 ${present.length}/${CASES.length} 个期望字符串。\n`)
+  process.exit(0)
+}
+
 let total = 0
 let best = 0
 const rows = []

@@ -20,11 +20,11 @@ const logger = { info: () => {}, warn: (m) => console.warn(m), debug: () => {} }
 const questions = process.argv.slice(2).length
   ? process.argv.slice(2)
   : [
-      '华硕 S300TA 最高支持多大内存',
-      '这台机器的处理器型号是什么',
-      '支持哪些接口和 USB 规格',
-      '机器的重量和尺寸是多少',
-      '电源功率多大'
+      '文档里介绍了什么内容',
+      '这个产品支持哪些功能',
+      '有哪些配置和参数',
+      '使用前需要准备什么',
+      '常见问题有哪些'
     ]
 
 function percentile(values, p) {

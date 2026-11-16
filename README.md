@@ -21,7 +21,7 @@
 ```bash
 npm install
 
-# 1. 下载模型（默认走 hf-mirror，可用 KB_MIRROR 覆盖）
+# 1. 下载模型（默认走 hf-mirror；海外可设 KB_MIRROR=https://huggingface.co）
 npm run fetch-model
 
 # 2. 建索引（指向你的 Markdown 目录，可多个 --source）
@@ -30,6 +30,8 @@ npm run build-index -- --source /path/to/markdown
 # 3. 检索
 npm run query -- "某个问题" --context
 ```
+
+> 已验证：在干净目录里 `git clone` → `npm ci` → `fetch-model` → `build-index` → `query` → `mcp-smoke` → `npm test` 全部通过。
 
 `--context` 会把**真正会注入给模型的那段文本**打印出来，方便判断阈值和预算。
 
@@ -136,7 +138,7 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-local-kb
 | `npm test` | 19 个单元测试（分块 / 检索数学 / MCP 协议） |
 | `npm run smoke` | 用假 ctx 跑插件行为（不安装） |
 | `npm run bench` | 预热后的延迟基准 |
-| `npm run eval` | 8 题检索质量评估 |
+| `npm run eval` | 8 题检索质量评估（样例针对中文规格页，换语料会提示跳过） |
 | `scripts/mcp-smoke.mjs` | MCP 端到端（spawn 子进程） |
 
 ## License
