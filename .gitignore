@@ -1,0 +1,8 @@
+node_modules/
+index-data/
+models/
+*.log
+.DS_Store
+
+# 本地待提交的 CI 文件（token 缺少 workflow scope）
+.ci-pending/

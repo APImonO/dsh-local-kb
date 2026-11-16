@@ -1,0 +1,17 @@
+# dsh-local-kb 的接线层。
+#
+# 现在不装：这份文件是给"以后要部署"时用的，安装方式见 README。
+# 装的时候会把下面这一行加进 profile 的 bundle 树，插件就在宿主进程里运行，
+# 用 `agent/pre-step` 钩子做检索注入，并注册 kb_* 工具。
+- insert:
+    - id: local-kb
+      name: dsh-local-kb
+      config:
+        indexDir: index-data
+        topK: 5
+        minScore: 0.45
+        maxChars: 1600
+        inject: true
+        lexicalWeight: 0.25
+        searchTimeoutMs: 800
+        batchSize: 16

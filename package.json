@@ -1,0 +1,62 @@
+{
+  "name": "dsh-local-kb",
+  "version": "0.3.1",
+  "description": "本地知识库：ONNX 中文向量检索，可作为 DeepSeek Harness 插件或 MCP 服务，不依赖任何外部服务",
+  "type": "module",
+  "license": "MIT",
+  "author": "APImonO",
+  "main": "src/index.js",
+  "bin": {
+    "dsh-local-kb-mcp": "scripts/mcp-server.mjs"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core.js",
+    "./mcp": "./src/mcp/server.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "fetch-model": "node scripts/fetch-model.mjs",
+    "build-index": "node scripts/build-index.mjs",
+    "query": "node scripts/query.mjs",
+    "mcp": "node scripts/mcp-server.mjs",
+    "bench": "node scripts/bench.mjs",
+    "eval": "node scripts/eval.mjs",
+    "smoke": "node scripts/smoke-plugin.mjs",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "mcp",
+    "model-context-protocol",
+    "rag",
+    "knowledge-base",
+    "embeddings",
+    "onnx",
+    "bge",
+    "chinese"
+  ],
+  "dependencies": {
+    "@huggingface/transformers": "^3.7.6",
+    "mammoth": "^1.13.0",
+    "pdfjs-dist": "^3.11.174",
+    "turndown": "^7.2.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
