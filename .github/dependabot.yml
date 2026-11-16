@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      # 嵌入/推理相关一起升，避免 pdfjs 这种精确锁定的版本被单独顶掉
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # pdfjs-dist 精确锁 3.11.174：更高版本要求 Node >= 20.16 或 24，
+      # 在 Node 20.12 上会直接报错，升级需人工验证
+      - dependency-name: pdfjs-dist
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor

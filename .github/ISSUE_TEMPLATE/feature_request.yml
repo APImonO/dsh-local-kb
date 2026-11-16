@@ -1,0 +1,36 @@
+name: 功能建议
+description: 提出一个新能力或改进
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你遇到的问题
+      description: 先说场景，再说功能——避免"我想加个 X"这种没有上下文的提案
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你希望怎么解决
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及模块
+      options:
+        - 检索质量（召回/排序/阈值）
+        - 文档解析（新格式）
+        - MCP 服务
+        - DSH 插件（注入行为）
+        - 索引与增量
+        - 其他
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: 约束确认
+      options:
+        - label: 我知道这个项目刻意不引入外部服务（不加数据库/向量库/常驻容器）

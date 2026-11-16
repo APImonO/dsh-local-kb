@@ -1,0 +1,53 @@
+name: 问题报告
+description: 报告一个缺陷或异常行为
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先确认：`npm test` 能通过吗？如果测试也挂，问题多半在环境而不是你的语料。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 实际行为，以及你期望的行为
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. npm run build-index -- --source ...
+        2. npm run query -- "..."
+        3. 看到 ...
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node 版本
+      description: 输出 `node -v`
+      placeholder: v20.12.2
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: kb_status 输出
+      description: 如果索引已经建好，贴一下 `kb_status` 的内容（或 `npm run mcp` 后调用它）
+      render: text
+  - type: dropdown
+    id: format
+    attributes:
+      label: 涉及的文档类型
+      multiple: true
+      options:
+        - Markdown / TXT
+        - CSV / TSV
+        - HTML
+        - PDF
+        - DOCX
+        - 其他
+    validations:
+      required: true

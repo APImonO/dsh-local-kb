@@ -1,0 +1,16 @@
+# 统一换行：仓库内一律 LF，Windows 脚本保留 CRLF
+* text=auto eol=lf
+
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# 二进制：不要让 git 做换行或文本 diff
+*.pdf   binary
+*.docx  binary
+*.png   binary
+*.jpg   binary
+*.zip   binary
+
+# 生成物不参与 diff/合并
+package-lock.json merge=binary
