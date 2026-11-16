@@ -20,3 +20,8 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+      # transformers.js 大版本会改 API（pipeline / env / pooling），
+      # 当前代码按 3.x 写；升级前要先跑模型推理验证，不能自动合
+      - dependency-name: "@huggingface/transformers"
+        update-types:
+          - version-update:semver-major
