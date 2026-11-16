@@ -36,7 +36,7 @@
     "bench": "node scripts/bench.mjs",
     "eval": "node scripts/eval.mjs",
     "smoke": "node scripts/smoke-plugin.mjs",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "keywords": [
     "dsh",
