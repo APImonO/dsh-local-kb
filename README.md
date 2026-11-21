@@ -166,3 +166,7 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-local-kb
 ## License
 
 MIT
+
+
+
+[![M8ven Verified](https://m8ven.ai/badge/mcp/apimono-dsh-local-kb-1b50dp?variant=verified&v=aa385fa80443ac9c1cd91345c591f6c3)](https://m8ven.ai/mcp/apimono-dsh-local-kb-1b50dp?s=readme)
